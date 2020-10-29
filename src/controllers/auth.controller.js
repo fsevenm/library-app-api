@@ -1,13 +1,27 @@
-const userService = require("../services/user");
+const userService = require("../services/user.service");
+const authService = require("../services/auth.service");
+const { BadRequest } = require("../utils/errors.util");
+const { Response } = require("../utils/response.util");
 
-async function login(req, res) {
+async function login(req, res, next) {
   const { email, password } = req.body;
 
   try {
-    const userToken = await userService.logIn(email, password);
-    return res.json({ token: userToken });
-  } catch (errorCode) {
-    return res.status(errorCode);
+    const user = await userService.findByEmail(email);
+    if (!user) {
+      throw new BadRequest("Invalid credentials.");
+    }
+    const verified = await authService.verify(password, user.password);
+    if (!verified) throw new BadRequest("Invalid credentials.");
+
+    const token = await authService.issueToken({
+      user: {
+        id: user.id,
+      },
+    });
+    return new Response(res, { token });
+  } catch (err) {
+    next(err);
   }
 }
 
