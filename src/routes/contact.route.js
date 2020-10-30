@@ -18,4 +18,6 @@ router.put("/:id", auth, validate(contactRules), contactController.update);
 // DELETE
 router.delete("/:id", auth, contactController.remove);
 
+router.get("/:id/github", auth, contactController.getGithubAccountInfo);
+
 module.exports = router;

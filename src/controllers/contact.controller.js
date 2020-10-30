@@ -1,5 +1,6 @@
 const contactService = require("../services/contact.service");
-const { NotFound, Unauthorized } = require("../utils/errors.util");
+const githubService = require("../services/github.service");
+const { NotFound, Unauthorized, BadRequest } = require("../utils/errors.util");
 const { Response, ResponseCreated } = require("../utils/response.util");
 
 async function get(req, res, next) {
@@ -7,6 +8,30 @@ async function get(req, res, next) {
     const contacts = await contactService.findAll(req.app.locals.user.id);
 
     return new Response(res, contacts);
+  } catch (error) {
+    next(error);
+  }
+}
+
+async function getGithubAccountInfo(req, res, next) {
+  try {
+    const contact = await contactService.find(req.params.id);
+
+    if (!contact) throw new NotFound("Contact not found.");
+
+    if (!contact.githubUsername)
+      throw new BadRequest(
+        "There's no GitHub username linked to this contact."
+      );
+
+    const data = await githubService.getUserInfo(contact.githubUsername);
+
+    if (!data)
+      throw new NotFound(
+        "Seems like there's no GitHub account with provided username."
+      );
+
+    return new Response(res, data);
   } catch (error) {
     next(error);
   }
@@ -73,4 +98,5 @@ module.exports = {
   add,
   update,
   remove,
+  getGithubAccountInfo,
 };
