@@ -4,7 +4,7 @@ const { Response, ResponseCreated } = require("../utils/response.util");
 
 async function get(req, res, next) {
   try {
-    const contacts = await contactService.findAll(req.locals.user.id);
+    const contacts = await contactService.findAll(req.app.locals.user.id);
 
     return new Response(res, contacts);
   } catch (error) {
@@ -16,7 +16,7 @@ async function add(req, res, next) {
   const { name, email, phone } = req.body;
   try {
     const contact = await contactService.create({
-      userId: req.locals.user.id,
+      userId: req.app.locals.user.id,
       name,
       email,
       phone,
@@ -40,7 +40,7 @@ async function update(req, res, next) {
 
     if (!contact) throw new NotFound("Contact not found.");
 
-    if (contact.userId !== req.locals.user.id)
+    if (contact.userId !== req.app.locals.user.id)
       throw new Unauthorized("Not authorized.");
 
     contact = await contactService.update(contactFields, req.params.id);
@@ -57,7 +57,7 @@ async function remove(req, res, next) {
 
     if (!contact) throw new NotFound("Contact not found.");
 
-    if (contact.userId !== req.locals.user.id)
+    if (contact.userId !== req.app.locals.user.id)
       throw new Unauthorized("Not authorized.");
 
     await contactService.destroy(req.params.id);
