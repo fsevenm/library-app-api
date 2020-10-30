@@ -3,12 +3,13 @@ class Response {
     this.data = data;
     this.message = message;
 
-    return res.status(this.getCode()).json({
-      success: true,
-      status: this.getCode(),
-      message: this.message,
-      data: this.data,
-    });
+    const response = {};
+    response.success = true;
+    response.status = this.getCode();
+    if (this.message) response.message = this.message;
+    response.data = this.data;
+
+    return res.status(this.getCode()).json(response);
   }
 
   getCode() {
