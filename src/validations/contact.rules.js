@@ -1,4 +1,4 @@
-exports.default = {
+module.exports = {
   name: "required",
   email: "email",
 };
