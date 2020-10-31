@@ -1,3 +1,4 @@
+const env = process.env.NODE_ENV || "development";
 const { GeneralError, UnprocessableEntity } = require("../utils/errors.util");
 
 const handleErrors = (err, req, res, next) => {
@@ -16,11 +17,14 @@ const handleErrors = (err, req, res, next) => {
       message: err.message,
     });
   }
-  // Todo: prevent error messages sent to user at production
+
   return res.status(500).json({
     success: false,
     status: 500,
-    message: err.message || "Internal server error.",
+    message:
+      env === "production"
+        ? "Internal server error."
+        : err.message || "Internal server error.",
   });
 };
 
